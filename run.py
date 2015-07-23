@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 import os
+import importlib
+import argparse
 import logging
 import tempfile
 import tarfile
@@ -8,8 +10,6 @@ from datetime import datetime
 from multiprocessing import Pool
 from contextlib import closing
 from paramiko import SSHClient, AutoAddPolicy
-from conf import CONNECTIONS, COMMANDS, PROCESSES
-from conf import DATADIR, LOGFILE
 
 
 def ssh_run(args):
@@ -34,10 +34,24 @@ def ssh_run(args):
 
 def main():
 
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '-c', '--configfile', metavar='FILE', default='conf.py',
+        help='use this configuration file')
+    args = parser.parse_args()
+
+    configfile = args.configfile
+    if configfile[-3:] == '.py':
+        configfile = configfile[:-3]
+    conf = importlib.import_module(configfile)
+    from conf import CONNECTIONS, COMMANDS, PROCESSES
+    from conf import DATADIR, LOGFILE
+
     logging.basicConfig(
-        filename = LOGFILE,
-        level = logging.INFO,
-        format = '%(asctime)s %(name)s %(levelname)s %(message)s')
+        filename=LOGFILE,
+        level=logging.INFO,
+        format='%(asctime)s %(name)s %(levelname)s %(message)s')
     logging.getLogger("paramiko").setLevel(logging.WARNING)
     logger = logging.getLogger('bcollector')
     logger.info('start')

@@ -1,5 +1,5 @@
 """
-config file for bportlog scripts
+config file for bcollector scripts
 """
 
 import os
